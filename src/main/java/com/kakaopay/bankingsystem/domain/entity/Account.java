@@ -1,5 +1,6 @@
 package com.kakaopay.bankingsystem.domain.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,8 @@ public class Account {
     private LocalDateTime withdrawExpiredAt;
     private LocalDateTime lookupExpiredAt;
 
-    public Account(String token, Long ownerId, String roomId, LocalDateTime createAt, LocalDateTime withdrawExpiredAt, LocalDateTime lookupExpiredAt) {
+    @Builder
+    private Account(String token, Long ownerId, String roomId, LocalDateTime createAt, LocalDateTime withdrawExpiredAt, LocalDateTime lookupExpiredAt) {
         this.token = token;
         this.ownerId = ownerId;
         this.roomId = roomId;

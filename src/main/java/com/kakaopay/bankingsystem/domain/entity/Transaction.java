@@ -1,5 +1,6 @@
 package com.kakaopay.bankingsystem.domain.entity;
 
+import com.kakaopay.bankingsystem.domain.exception.TransactionStatusChangeValidationException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class Transaction {
     private long amount;
     private Long userId;
     private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Transaction(TransactionStatus status, Account account, long amount, Long userId, LocalDateTime createdAt) {
@@ -31,6 +33,7 @@ public class Transaction {
         this.amount = amount;
         this.userId = userId;
         this.createdAt = createdAt;
+        this.modifiedAt = createdAt;
     }
 
     public static Transaction depositCompleted(Account account, long amount, Long userId, LocalDateTime createdAt) {
@@ -61,5 +64,14 @@ public class Transaction {
                 .userId(userId)
                 .createdAt(createdAt)
                 .build();
+    }
+
+    public void toNextStatus(TransactionStatus nextStatus, Long userId) {
+//        if(!status.getPossibleNextStatus().contains(nextStatus)) {
+//            throw new TransactionStatusChangeValidationException("유효하지 않은 트랜잭션 상태 변화입니다.");
+//        }
+        this.status = nextStatus;
+        this.userId = userId;
+        this.modifiedAt = LocalDateTime.now();
     }
 }
