@@ -15,21 +15,19 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, length = 3)
-    private String token;
+    @OneToOne
+    private Token token;
     private Long ownerId;
     private String roomId;
     private LocalDateTime createAt;
     private LocalDateTime withdrawExpiredAt;
-    private LocalDateTime lookupExpiredAt;
 
     @Builder
-    private Account(String token, Long ownerId, String roomId, LocalDateTime createAt, LocalDateTime withdrawExpiredAt, LocalDateTime lookupExpiredAt) {
+    private Account(Token token, Long ownerId, String roomId, LocalDateTime createAt, LocalDateTime withdrawExpiredAt) {
         this.token = token;
         this.ownerId = ownerId;
         this.roomId = roomId;
         this.createAt = createAt;
         this.withdrawExpiredAt = withdrawExpiredAt;
-        this.lookupExpiredAt = lookupExpiredAt;
     }
 }

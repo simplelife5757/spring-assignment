@@ -1,10 +1,12 @@
 package com.kakaopay.bankingsystem.domain.service;
 
 import com.kakaopay.bankingsystem.domain.entity.Account;
+import com.kakaopay.bankingsystem.domain.entity.Token;
 import com.kakaopay.bankingsystem.domain.entity.Transaction;
 import com.kakaopay.bankingsystem.domain.entity.TransactionStatus;
 import com.kakaopay.bankingsystem.domain.exception.WithdrawFailureException;
 import com.kakaopay.bankingsystem.domain.exception.WithdrawRuleViolationException;
+import com.kakaopay.bankingsystem.utility.StringTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +23,19 @@ import java.util.List;
 public class LuckyAccountService {
     private final AccountService accountService;
     private final TransactionService transactionService;
+    private final TokenService tokenService;
 
     public void create(LuckyAccountCreateRequest request) {
+        LocalDateTime requestAt = request.getRequestAt();
+
+        Token token = generateToken(requestAt.plusDays(7));
+
         Long userId = request.getUserId();
         long amount = request.getAmount();
         int withdrawLimit = request.getWithdrawLimit();
-        LocalDateTime requestAt = request.getRequestAt();
 
         AccountCreateRequest accountCreateRequest = AccountCreateRequest.builder()
-                .token("abc")
+                .token(token)
                 .ownerId(userId)
                 .roomId(request.getRoomId())
                 .createdAt(requestAt)
@@ -46,7 +52,8 @@ public class LuckyAccountService {
 
     @Transactional
     public void withdraw(LuckyAccountWithdrawRequest request) {
-        Account account = accountService.findByToken(request.getToken());
+        Token token = tokenService.getValidToken(request.getTokenName());
+        Account account = accountService.findByToken(token);
         Long userId = request.getUserId();
         if(!account.getRoomId().equals(request.getRoomId())) {
             throw new WithdrawRuleViolationException("일치하지 않는 방 번호입니다.");
@@ -73,5 +80,14 @@ public class LuckyAccountService {
 
     private boolean hasTransactionAlready(LuckyAccountWithdrawRequest request, List<Transaction> transactions) {
         return transactions.stream().anyMatch(transaction -> request.getUserId().equals(transaction.getUserId()));
+    }
+
+    private Token generateToken(LocalDateTime expiredAt) {
+        while (true) {
+            String tokenName = StringTokenGenerator.generateToken();
+            if (tokenService.isUsableToken(tokenName, expiredAt)) {
+                return new Token(tokenName, expiredAt);
+            }
+        }
     }
 }

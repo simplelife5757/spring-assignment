@@ -1,6 +1,7 @@
 package com.kakaopay.bankingsystem.domain.service;
 
 import com.kakaopay.bankingsystem.domain.entity.Account;
+import com.kakaopay.bankingsystem.domain.entity.Token;
 import com.kakaopay.bankingsystem.domain.exception.AccountNotFoundException;
 import com.kakaopay.bankingsystem.domain.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +19,11 @@ public class AccountService {
                .roomId(request.getRoomId())
                .createAt(request.getCreatedAt())
                .withdrawExpiredAt(request.getWithdrawExpireAt())
-               .lookupExpiredAt(request.getLookupExpireAt())
                .build();
        return accountRepository.save(account);
    }
 
-   public Account findByToken(String token) {
+   public Account findByToken(Token token) {
        return accountRepository.findByToken(token).orElseThrow(() -> new AccountNotFoundException("토큰=" + token));
    }
 }
