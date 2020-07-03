@@ -28,7 +28,7 @@ public class LuckyAccountService {
     private final TransactionService transactionService;
     private final TokenService tokenService;
 
-    public void create(LuckyAccountCreateRequest request) {
+    public Long create(LuckyAccountCreateRequest request) {
         LocalDateTime requestAt = request.getRequestAt();
 
         Token token = generateToken(requestAt.plusDays(7));
@@ -51,6 +51,7 @@ public class LuckyAccountService {
         for (int i = 0; i < withdrawLimit; i++) {
             transactionService.withdrawStandby(account, amount / withdrawLimit);
         }
+        return account.getId();
     }
 
     @Transactional
