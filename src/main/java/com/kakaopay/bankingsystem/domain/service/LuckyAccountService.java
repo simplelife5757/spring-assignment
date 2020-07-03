@@ -8,7 +8,6 @@ import com.kakaopay.bankingsystem.domain.exception.LuckyAccountReadResponse;
 import com.kakaopay.bankingsystem.domain.exception.ReadRuleViolationException;
 import com.kakaopay.bankingsystem.domain.exception.WithdrawFailureException;
 import com.kakaopay.bankingsystem.domain.exception.WithdrawRuleViolationException;
-import com.kakaopay.bankingsystem.utility.StringTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,11 +113,6 @@ public class LuckyAccountService {
     }
 
     private Token generateToken(LocalDateTime expiredAt) {
-        while (true) {
-            String tokenName = StringTokenGenerator.generateToken();
-            if (tokenService.isUsableToken(tokenName, expiredAt)) {
-                return new Token(tokenName, expiredAt);
-            }
-        }
+        return tokenService.generateToken(expiredAt);
     }
 }
