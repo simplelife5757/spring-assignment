@@ -4,6 +4,8 @@ import com.kakaopay.bankingsystem.domain.entity.Account;
 import com.kakaopay.bankingsystem.domain.entity.Token;
 import com.kakaopay.bankingsystem.domain.entity.Transaction;
 import com.kakaopay.bankingsystem.domain.entity.TransactionStatus;
+import com.kakaopay.bankingsystem.domain.exception.LuckyAccountReadResponse;
+import com.kakaopay.bankingsystem.domain.exception.ReadRuleViolationException;
 import com.kakaopay.bankingsystem.domain.exception.WithdrawFailureException;
 import com.kakaopay.bankingsystem.domain.exception.WithdrawRuleViolationException;
 import com.kakaopay.bankingsystem.utility.StringTokenGenerator;
@@ -12,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 // lesson2. 26:30
@@ -76,6 +80,33 @@ public class LuckyAccountService {
                 .orElseThrow(() -> new WithdrawFailureException("더 이상 남은 뿌리기가 없습니다."));
 
         withdrawStandby.toNextStatus(TransactionStatus.WITHDRAW_COMPLETED, userId);
+    }
+
+    public LuckyAccountReadResponse read(LuckyAccountReadRequest request) {
+        Token token = tokenService.getValidToken(request.getTokenName());
+        Account account = accountService.findByToken(token);
+
+        if (!account.getOwnerId().equals(request.getUserId())) {
+            throw new ReadRuleViolationException("뿌린 사람만 조회를 할 수 있습니다.");
+        }
+
+        List<Transaction> transactions = transactionService.findByAccount(account);
+
+        long totalAmount = 0;
+        Map<Long, Long> userToAmount = new HashMap<>();
+        for (Transaction transaction: transactions) {
+            totalAmount += transaction.getAmount();
+            if (transaction.getStatus().equals(TransactionStatus.WITHDRAW_COMPLETED)) {
+                userToAmount.put(transaction.getUserId(), transaction.getAmount());
+            }
+        }
+
+        return new LuckyAccountReadResponse(
+                account.getCreateAt(),
+                totalAmount,
+                userToAmount.values().stream().mapToLong(amount -> amount).sum(),
+                userToAmount
+        );
     }
 
     private boolean hasTransactionAlready(LuckyAccountWithdrawRequest request, List<Transaction> transactions) {
