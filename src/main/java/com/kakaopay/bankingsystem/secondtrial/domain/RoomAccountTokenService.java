@@ -9,10 +9,16 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class RoomAccountTokenService {
     private final StringTokenGenerator tokenGenerator;
-    private final RoomAccountTokenRepository repository;
+    private final RoomAccountTokenRepository roomAccountTokenRepository;
 
-    RoomAccountToken createToken(LocalDateTime roomAccountCreatedAt) {
+    RoomAccountToken createStringToken(LocalDateTime roomAccountCreatedAt) {
         RoomAccountToken token = new RoomAccountToken(tokenGenerator.generateStringToken(), roomAccountCreatedAt);
-        return repository.save(token);
+        return roomAccountTokenRepository.save(token);
+    }
+
+    public RoomAccountToken findValidToken(String token) {
+        RoomAccountToken roomAccountToken = roomAccountTokenRepository.findByToken(token);
+        roomAccountToken.verify();
+        return roomAccountToken;
     }
 }

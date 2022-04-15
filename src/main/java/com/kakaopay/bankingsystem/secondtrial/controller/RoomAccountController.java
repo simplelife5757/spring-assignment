@@ -2,10 +2,7 @@ package com.kakaopay.bankingsystem.secondtrial.controller;
 
 import com.kakaopay.bankingsystem.secondtrial.domain.RoomAccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/room-accounts")
@@ -16,5 +13,10 @@ public class RoomAccountController {
     @PostMapping
     RoomAccountsCreateResponse createRoomAccounts(@RequestBody RoomAccountsCreateRequest request) {
         return new RoomAccountsCreateResponse(roomAccountService.createRoomAccounts(request));
+    }
+
+    @PutMapping
+    Long withdrawRoomAccount(@RequestBody RoomAccountWithdrawRequest request) {
+        return roomAccountService.withdrawRoomAccount(request);
     }
 }

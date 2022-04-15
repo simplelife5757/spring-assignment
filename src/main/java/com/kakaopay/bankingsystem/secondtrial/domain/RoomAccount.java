@@ -20,6 +20,7 @@ public class RoomAccount {
     private Long ownerId;
     private String roomId;
     private Integer amount;
+    private Long userId;
     private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
@@ -30,5 +31,17 @@ public class RoomAccount {
         this.roomId = roomId;
         this.amount = amount;
         this.createdAt = createdAt;
+    }
+
+    public void updateUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void verify(String roomId, long userId) {
+
+    }
+
+    public Long getId() {
+        return id;
     }
 }

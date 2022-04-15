@@ -26,4 +26,8 @@ public class RoomAccountToken {
     public String getToken() {
         return token;
     }
+
+    public void verify() {
+
+    }
 }
